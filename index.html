@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Socket.IO chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding-bottom: 3rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    #form {
+      background: rgba(0, 0, 0, 0.15);
+      padding: 0.25rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 3rem;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    #input-message {
+      border: none;
+      padding: 0 1rem;
+      flex-grow: 1;
+      border-radius: 2rem;
+      margin: 0.25rem;
+    }
+
+    #input-message:focus {
+      outline: none;
+    }
+
+    #form>button {
+      background: #333;
+      border: none;
+      padding: 0 1rem;
+      margin: 0.25rem;
+      border-radius: 3px;
+      outline: none;
+      color: #fff;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages>li {
+      padding: 0.5rem 1rem;
+    }
+
+    #messages>li:nth-child(odd) {
+      background: #efefef;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container my-1">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="input-group mb-3">
+          <span class="input-group-text" id="basic-addon1"><i class="fa fa-user"></i></span>
+          <input type="text" class="form-control" placeholder="Username" aria-label="Username" id="input-username">
+        </div>
+      </div>
+      <div class="col-sm-12 my-1">
+        <div class="card border-0">
+          <ul id="messages" class="list-group list-group-flush"></ul>
+        </div>
+      </div>
+    </div>
+    <form id="form" action="">
+      <input id="input-message" type="text" autocomplete="off" /><button><i class="fa fa-send"></i></button>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+      var socket = io();
+
+      $(document).ready(function () {
+        $('#input-username').val('user-' + Math.round(new Date().getTime() / 1000));
+      });
+
+      $("#form").on("submit", function (e) {
+        e.preventDefault();
+        if($('#input-message').val().trim() == ''){
+          return false;
+        }
+        let msg = '<b>' + $('#input-username').val() + '</b><br/>' + $('#input-message').val();
+        socket.emit('chat message', msg);
+        $('#input-message').val('');
+      });
+
+      socket.on('chat message', function (msg) {
+        $('#messages').append(`
+            <li class="list-group-item">
+              ${msg}
+            </li>
+        `);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+    </script>
+</body>
+
+</html>
